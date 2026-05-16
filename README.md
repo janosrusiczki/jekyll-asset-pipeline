@@ -1,10 +1,9 @@
 # Jekyll Asset Pipeline
 
 [![Gem Version](https://img.shields.io/gem/v/jekyll_asset_pipeline.svg)](https://rubygems.org/gems/jekyll_asset_pipeline)
-[![Build Status](https://img.shields.io/travis/matthodan/jekyll-asset-pipeline.svg)](https://travis-ci.org/matthodan/jekyll-asset-pipeline)
-[![Coveralls Status](https://img.shields.io/coveralls/github/matthodan/jekyll-asset-pipeline/master.svg)](https://coveralls.io/r/matthodan/jekyll-asset-pipeline?branch=master)
+[![CI](https://github.com/janosrusiczki/jekyll-asset-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/janosrusiczki/jekyll-asset-pipeline/actions/workflows/ci.yml)
 
-[Jekyll Asset Pipeline](http://www.matthodan.com/2012/11/22/jekyll-asset-pipeline.html) is a powerful asset pipeline that automatically collects, converts and compresses / minifies your site's JavaScript and CSS assets when you compile your [Jekyll](http://jekyllrb.com/) site.
+Jekyll Asset Pipeline is a powerful asset pipeline that automatically collects, converts and compresses / minifies your site's JavaScript and CSS assets when you compile your [Jekyll](https://jekyllrb.com/) site.
 
 ## Table of Contents
 
@@ -21,7 +20,6 @@
   - [Google's Closure Compiler](#googles-closure-compiler)
 - [Templates](#templates)
 - [Configuration](#configuration)
-- [Octopress](#octopress)
 - [Contribute](#contribute)
 - [Community](#community)
 - [Credits](#credits)
@@ -30,8 +28,8 @@
 ## Features
 
 - Declarative dependency management via asset manifests
-- Asset preprocessing/conversion (supports [CoffeeScript](http://coffeescript.org/), [Sass / Scss](http://sass-lang.com/), [Less](http://lesscss.org/), [Erb](http://ruby-doc.org/stdlib-2.2.0/libdoc/erb/rdoc/ERB.html), etc.)
-- Asset compression (supports [YUI Compressor](http://yui.github.io/yuicompressor/), [Closure Compiler](https://developers.google.com/closure/compiler/), etc.)
+- Asset preprocessing/conversion (supports [CoffeeScript](https://coffeescript.org/), [Sass / Scss](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, etc.)
+- Asset compression (supports [YUI Compressor](https://yui.github.io/yuicompressor/), [Closure Compiler](https://developers.google.com/closure/compiler/), etc.)
 - Fingerprints bundled asset filenames with MD5 hashes for better browser caching
 - Automatic generation of HTML `link` and `script` tags that point to bundled assets
 - Integrates seamlessly into Jekyll's workflow, including auto site regeneration
@@ -49,13 +47,13 @@ Jekyll Asset Pipeline's workflow can be summarized as follows:
 
 Jekyll Asset Pipeline is extremely easy to add to your Jekyll project and has no incremental dependencies beyond those required by Jekyll. Once you have a basic Jekyll site up and running, follow the steps below to install and configure Jekyll Asset Pipeline.
 
-1. Install the `jekyll_asset_pipeline` gem via [Rubygems](http://rubygems.org/).
+1. Install the `jekyll_asset_pipeline` gem via [RubyGems](https://rubygems.org/).
 
   ``` bash
   $ gem install jekyll_asset_pipeline
   ```
 
-  If you are using [Bundler](http://gembundler.com/) to manage your project's gems, you can just add `jekyll_asset_pipeline` to your Gemfile and run `bundle install`.
+  If you are using [Bundler](https://bundler.io/) to manage your project's gems, you can just add `jekyll_asset_pipeline` to your Gemfile and run `bundle install`.
 
 2. Add a `_plugins` folder to your project if you do not already have one. Within the `_plugins` folder, add a file named `jekyll_asset_pipeline.rb` with the following require statement as its contents.
 
@@ -65,7 +63,7 @@ Jekyll Asset Pipeline is extremely easy to add to your Jekyll project and has no
 
 3. Move your assets into a Jekyll ignored folder (i.e. a folder that begins with an underscore `_`) so that Jekyll won't include these raw assets in the site output. It is recommended to use an `_assets` folder to hold your site's assets.
 
-4. Add the following [Liquid](http://liquidmarkup.org/) blocks to your site's HTML `head` section. These blocks will be converted into HTML `link` and `script` tags that point to bundled assets. Within each block is a manifest of assets to include in the bundle. Assets are included in the same order that they are listed in the manifest. Replace the `foo` and `bar` assets with your site's assets. At this point we are just using plain old javascript and css files (hence the `.js` and `.css` extensions). See the [Asset Preprocessing](#asset-preprocessing) section to learn how to include files that must be preprocessed (e.g. CoffeeScript, Sass, Less, Erb, etc.). Name the bundle by including a string after the opening tag. We've named our bundles "global" in the below example.
+4. Add the following [Liquid](https://shopify.github.io/liquid/) blocks to your site's HTML `head` section. These blocks will be converted into HTML `link` and `script` tags that point to bundled assets. Within each block is a manifest of assets to include in the bundle. Assets are included in the same order that they are listed in the manifest. Replace the `foo` and `bar` assets with your site's assets. At this point we are just using plain old javascript and css files (hence the `.js` and `.css` extensions). See the [Asset Preprocessing](#asset-preprocessing) section to learn how to include files that must be preprocessed (e.g. Sass, Less, Erb, etc.). Name the bundle by including a string after the opening tag. We've named our bundles "global" in the below example.
 
   ``` html
   {% css_asset_tag global %}
@@ -78,7 +76,7 @@ Jekyll Asset Pipeline is extremely easy to add to your Jekyll project and has no
   - /_assets/bar.js
   {% endjavascript_asset_tag %}
   ```
-  Asset manifests must be formatted as YAML arrays and include full paths to each asset from the root of the project. YAML [does not allow tabbed markup](http://www.yaml.org/faq.html), so you must use spaces when indenting your YAML manifest or you will get an error when you compile your site. If you are using assets that must be preprocessed, you should append the appropriate extension (e.g. '.js.coffee', '.css.less') as discussed in the [Asset Preprocessing](#asset-preprocessing) section.
+  Asset manifests must be formatted as YAML arrays and include full paths to each asset from the root of the project. YAML [does not allow tabbed markup](https://yaml.org/faq.html), so you must use spaces when indenting your YAML manifest or you will get an error when you compile your site. If you are using assets that must be preprocessed, you should append the appropriate extension (e.g. '.js.coffee', '.css.less') as discussed in the [Asset Preprocessing](#asset-preprocessing) section.
 
 5. Run the `jekyll build` command to compile your site. You should see an output that includes the following Jekyll Asset Pipeline status messages.
 
@@ -97,7 +95,7 @@ That is it! You should now have bundled assets. Look in the `_site` folder of yo
 
 ## Asset Preprocessing
 
-Asset preprocessing (i.e. conversion) allows us to write our assets in languages such as [CoffeeScript](http://coffeescript.org/), [Sass](http://sass-lang.com/), [Less](http://lesscss.org/), [Erb](http://ruby-doc.org/stdlib-1.9.3/libdoc/erb/rdoc/ERB.html) or any other language. One of Jekyll Asset Pipeline's key strengths is that it works with __any__ preprocessing library that has a ruby wrapper. Adding a preprocessor is straightforward, but requires a small amount of additional code.
+Asset preprocessing (i.e. conversion) allows us to write our assets in languages such as [CoffeeScript](https://coffeescript.org/), [Sass](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, or any other language. One of Jekyll Asset Pipeline's key strengths is that it works with __any__ preprocessing library that has a ruby wrapper. Adding a preprocessor is straightforward, but requires a small amount of additional code.
 
 In the following example, we will add a preprocessor that converts CoffeeScript into JavaScript.
 
@@ -129,7 +127,7 @@ In the following example, we will add a preprocessor that converts CoffeeScript 
   $ gem install coffee-script
   ```
 
-  If you are using [Bundler](http://gembundler.com/) to manage your project's gems, you can just add `coffee-script` to your Gemfile and run `bundle install`.
+  If you are using [Bundler](https://bundler.io/) to manage your project's gems, you can just add `coffee-script` to your Gemfile and run `bundle install`.
 
 3. Append a `.coffee` extension to the filename of any asset that should be converted with the `CoffeeScriptConverter`. For example, `foo.js` would become `foo.js.coffee`.
 
@@ -202,7 +200,7 @@ end
 
 ### Successive Preprocessing
 
-If you would like to run an asset through multiple preprocessors successively, you can do so by naming your assets with nested file extensions. Nest the extensions in the order (right to left) that the asset should be processed. For example, `.css.scss.erb` would first be processed by an `erb` preprocessor then by a `scss` preprocessor before being rendered. This convention is very similar to the convention used by the [Ruby on Rails asset pipeline](http://guides.rubyonrails.org/asset_pipeline.html#preprocessing).
+If you would like to run an asset through multiple preprocessors successively, you can do so by naming your assets with nested file extensions. Nest the extensions in the order (right to left) that the asset should be processed. For example, `.css.scss.erb` would first be processed by an `erb` preprocessor then by a `scss` preprocessor before being rendered. This convention is very similar to the convention used by the [Ruby on Rails asset pipeline](https://guides.rubyonrails.org/asset_pipeline.html#preprocessing).
 
 Don't forget to define preprocessors for the extensions you use in your filenames, otherwise Jekyll Asset Pipeline will not process your asset.
 
@@ -252,7 +250,7 @@ In the following example, we will add a compressor that uses Yahoo's YUI Compres
   $ gem install yui-compressor
   ```
 
-  If you are using [Bundler](http://gembundler.com/) to manage your project's gems, you can just add `yui-compressor` to your Gemfile and run `bundle install`.
+  If you are using [Bundler](https://bundler.io/) to manage your project's gems, you can just add `yui-compressor` to your Gemfile and run `bundle install`.
 
 3. Run the `jekyll build` command to compile your site.
 
@@ -311,7 +309,7 @@ That is it! Your asset pipeline used your template to generate an HTML `link` ta
 
 ## Configuration
 
-Jekyll Asset Pipeline provides the following configuration options that can be controlled by adding them to your project's `_config.yml` file. If you don't have a `_config.yml` file, consider reading the [configuration section](https://github.com/mojombo/jekyll/wiki/Configuration) of the Jekyll documentation.
+Jekyll Asset Pipeline provides the following configuration options that can be controlled by adding them to your project's `_config.yml` file. If you don't have a `_config.yml` file, consider reading the [configuration section](https://jekyllrb.com/docs/configuration/) of the Jekyll documentation.
 
 ``` yaml
 asset_pipeline:
@@ -331,31 +329,11 @@ Setting        | Default  | Description
 `gzip`         | `false`  | controls whether Jekyll Asset Pipeline saves gzipped versions of your assets alongside un-gzipped versions.
 
 
-## Octopress
-
-[Octopress](http://octopress.org/) is a popular framework for Jekyll that can help you get a blog up and running quickly. Jekyll Asset Pipeline can be added to an Octopress site using the [Getting Started](#getting-started) steps above with the following modifications:
-
-1. Octopress uses Bundler to manage your site's dependencies. You should add `gem jekyll_asset_pipeline` to your Gemfile and then run `bundle install` to install.
-
-2. Instead of adding a `_plugins` folder, you should put `jekyll_asset_pipeline.rb` in the `plugins` folder included by default in the root of your Octopress site.
-
-3. You should still store your assets in an Jekyll ignored folder (i.e. a folder that begins with an underscore `_`), but note that this folder should be located within the `source` folder of your Octopress site (e.g. `source/_assets`).
-
-4. No change to this step.
-
-5. Instead of running the `jekyll` command to compile your site, you should use Octopress' rake commands (e.g. `rake generate`) as outlined [here](http://octopress.org/docs/blogging/).
-
-If you have any difficulties using Jekyll Asset Pipeline with Octopress, please [open an issue](http://github.com/matthodan/jekyll-asset-pipeline/issues).
-
 ## Contribute
 
-You can contribute to the Jekyll Asset Pipeline by submitting a pull request [via GitHub](https://github.com/matthodan/jekyll-asset-pipeline). There are a few areas that need improvement:
+You can contribute to Jekyll Asset Pipeline by submitting a pull request [via GitHub](https://github.com/janosrusiczki/jekyll-asset-pipeline).
 
-- __Tests, tests, tests.__ **This project is now fully tested.**
-- __Successive preprocessing.__ Currently you can only preprocess a file once. It would be better if you could run an asset through multiple preprocessors before it gets compressed and bundled. **As of v0.1.0, Jekyll Asset Pipeline now supports successive preprocessing.**
-- __Handle remote assets.__ Right now, Jekyll Asset Pipeline does not provide any way to include remote assets in bundles unless you save them locally before generating your site. Moshen's [Jekyll Asset Bundler](https://github.com/moshen/jekyll-asset_bundler) allows you to include remote assets, which is pretty interesting. That said, it is generally better to keep remote assets separate so that they load asynchronously.
-
-If you have any ideas or you would like to see anything else improved please use the [issues section](https://github.com/matthodan/jekyll-asset-pipeline/issues).
+If you have any ideas or you would like to see anything else improved please use the [issues section](https://github.com/janosrusiczki/jekyll-asset-pipeline/issues).
 
 ## Changelog
 
@@ -363,14 +341,13 @@ See [the changelog](CHANGELOG.md).
 
 ## Community
 
-- Here is [GitHub's list of projects that use the gem](https://github.com/matthodan/jekyll-asset-pipeline/network/dependents).
-- Here is a currated list of [sites that use Jekyll Asset Pipeline](http://github.com/matthodan/jekyll-asset-pipeline/wiki/Sites-that-use-Jekyll-Asset-Pipeline). Feel free to add your site to the list if you want.
+- Here is [GitHub's list of projects that use the gem](https://github.com/janosrusiczki/jekyll-asset-pipeline/network/dependents).
 
 ## Credits
 
 * [Moshen](https://github.com/moshen/) for creating the [Jekyll Asset Bundler](https://github.com/moshen/jekyll-asset_bundler).
-* [Mojombo](https://github.com/mojombo) for creating [Jekyll](https://github.com/mojombo/jekyll) in the first place.
+* [Mojombo](https://github.com/mojombo) for creating [Jekyll](https://github.com/jekyll/jekyll) in the first place.
 
 ## License
 
-Jekyll Asset Pipeline is released under the [MIT License](http://opensource.org/licenses/MIT).
+Jekyll Asset Pipeline is released under the [MIT License](https://opensource.org/licenses/MIT).
