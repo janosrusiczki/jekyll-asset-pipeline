@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-require 'coveralls'
-Coveralls.wear!
+require 'simplecov'
+require 'simplecov-cobertura'
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+SimpleCov.start
 
 require 'rubygems'
 gem 'minitest' # Ensures we are using the gem and not the stdlib
