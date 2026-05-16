@@ -16,7 +16,7 @@ describe 'Integration' do
   end
 
   it 'saves assets to staging path' do
-    $stdout.stub(:puts, nil) do
+    capture_output do
       config['output_path'] = '/foobar_assets'
       pipeline, = JekyllAssetPipeline::Pipeline
                   .run(manifest, prefix, source_path, temp_path,
@@ -39,19 +39,18 @@ describe 'Integration' do
     filename = "#{prefix}-#{Digest::MD5.hexdigest(content)}#{extension}"
     path = File.join(temp_path, JekyllAssetPipeline::DEFAULTS['output_path'])
 
-    expected =
-      "Asset Pipeline: Processing '#{tag_name}' manifest '#{prefix}'\n" \
-      "Asset Pipeline: Saved '#{filename}' to '#{path}'\n"
-
-    _(proc do
+    output = capture_output do
       JekyllAssetPipeline::Pipeline
         .run(manifest, prefix, source_path, temp_path,
              tag_name, extension, config)
-    end).must_output(expected)
+    end
+
+    _(output).must_include("Asset Pipeline: Processing '#{tag_name}' manifest '#{prefix}'")
+    _(output).must_include("Asset Pipeline: Saved '#{filename}' to '#{path}'")
   end
 
   it 'uses cached pipeline if manifest has been previously processed' do
-    $stdout.stub(:puts, nil) do
+    capture_output do
       pipeline1, cached1 = JekyllAssetPipeline::Pipeline
                            .run(manifest, prefix, source_path, temp_path,
                                 tag_name, extension, config)
@@ -80,7 +79,7 @@ describe 'Integration' do
         end
       end
 
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, '.css', config)
@@ -107,7 +106,7 @@ describe 'Integration' do
         end
       end
 
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, '.js', config)
@@ -123,7 +122,7 @@ describe 'Integration' do
 
   describe 'pipeline#html' do
     it 'returns html link tag if css' do
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, '.css', config)
@@ -132,7 +131,7 @@ describe 'Integration' do
     end
 
     it 'returns html script tag if js' do
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, '.js', config)
@@ -141,7 +140,7 @@ describe 'Integration' do
     end
 
     it 'links to display_path if option is set' do
-      $stdout.stub(:puts, nil) do
+      capture_output do
         config['display_path'] = 'foo/bar/baz'
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
@@ -157,7 +156,7 @@ describe 'Integration' do
     end
 
     it 'bundles assets into one file when bundle => true' do
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, extension, config)
@@ -166,7 +165,7 @@ describe 'Integration' do
     end
 
     it 'saves bundled file with filename starting with prefix' do
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, extension, config)
@@ -183,7 +182,7 @@ describe 'Integration' do
     end
 
     it 'saves each file in manifest' do
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, extension, config)
@@ -213,7 +212,7 @@ describe 'Integration' do
       end
 
       manifest = '- /_assets/unconverted.css.baz'
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, extension, config)
@@ -243,7 +242,7 @@ describe 'Integration' do
       end
 
       manifest = '- /_assets/unconverted.baz'
-      $stdout.stub(:puts, nil) do
+      capture_output do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, extension, config)
@@ -297,7 +296,7 @@ describe 'Integration' do
 
       it 'converts asset multiple times if needed in order based on ' \
          'extension' do
-        $stdout.stub(:puts, nil) do
+        capture_output do
           manifest = '- /_assets/unconverted.css.baz.bar'
           pipeline, = JekyllAssetPipeline::Pipeline
                       .run(manifest, prefix, source_path, temp_path,
@@ -333,7 +332,7 @@ describe 'Integration' do
         end
       end
 
-      $stdout.stub(:puts, nil) do
+      capture_output do
         manifest = '- /_assets/uncompressed.css'
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
@@ -353,13 +352,14 @@ describe 'Integration' do
   describe 'error handling' do
     it 'outputs error message if fails to read manifest' do
       manifest = 'invalid_manifest'
-      _(proc do
-        proc do
+      output = capture_output do
+        _ do
           JekyllAssetPipeline::Pipeline
             .run(manifest, prefix, source_path, temp_path,
                  tag_name, extension, config)
         end.must_raise(NoMethodError)
-      end).must_output(/failed/i)
+      end
+      _(output).must_match(/failed/i)
     end
 
     it 'outputs error message if failure to convert asset' do
@@ -377,13 +377,14 @@ describe 'Integration' do
       end
 
       manifest = '- /_assets/unconverted.baz'
-      _(proc do
-        proc do
+      output = capture_output do
+        _ do
           JekyllAssetPipeline::Pipeline
             .run(manifest, prefix, source_path, temp_path,
                  tag_name, extension, config)
         end.must_raise(StandardError)
-      end).must_output(/failed/i)
+      end
+      _(output).must_match(/failed/i)
 
       # Clean up test converters
       JekyllAssetPipeline::Converter
@@ -406,13 +407,14 @@ describe 'Integration' do
       end
 
       manifest = '- /_assets/uncompressed.css'
-      _(proc do
-        proc do
+      output = capture_output do
+        _ do
           JekyllAssetPipeline::Pipeline
             .run(manifest, prefix, source_path, temp_path,
                  tag_name, extension, config)
         end.must_raise(StandardError)
-      end).must_output(/failed/i)
+      end
+      _(output).must_match(/failed/i)
 
       # Clean up test compressor
       JekyllAssetPipeline::Compressor
@@ -435,19 +437,21 @@ describe 'Integration' do
       end
 
       manifest = '- /_assets/unconverted.baz'
-      _(proc do
-        proc do
+      output = capture_output do
+        _ do
           JekyllAssetPipeline::Pipeline
             .run(manifest, prefix, source_path, temp_path,
                  tag_name, extension, config)
         end.must_raise(StandardError)
-      end).must_output(/failed/i)
+      end
+      _(output).must_match(/failed/i)
 
-      _(proc do
+      output = capture_output do
         JekyllAssetPipeline::Pipeline
           .run(manifest, prefix, source_path, temp_path,
                tag_name, extension, config)
-      end).must_output(nil)
+      end
+      _(output).must_be_empty
 
       # Clean up test converters
       JekyllAssetPipeline::Converter
@@ -464,13 +468,14 @@ describe 'Integration' do
       # opened
       File.stub(:open, -> { raise StandardError }) do
         manifest = '- /_assets/unconverted.baz'
-        _(proc do
+        output = capture_output do
           proc do
             JekyllAssetPipeline::Pipeline
               .run(manifest, prefix, source_path, temp_path,
                    tag_name, extension, config)
           end.must_raise(StandardError)
-        end).must_output(/failed/i)
+        end
+        _(output).must_match(/failed/i)
       end
     end
 
@@ -480,13 +485,14 @@ describe 'Integration' do
       FileUtils.stub(:mkpath, nil) do
         config['staging_path'] = 'we_probably_cant_write_here'
         manifest = '- /_assets/unconverted.baz'
-        _(proc do
+        output = capture_output do
           proc do
             JekyllAssetPipeline::Pipeline
               .run(manifest, prefix, source_path, temp_path,
                    tag_name, extension, config)
           end.must_raise(StandardError)
-        end).must_output(/failed/i)
+        end
+        _(output).must_match(/failed/i)
       end
     end
   end

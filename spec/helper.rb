@@ -26,6 +26,17 @@ module Minitest
       FileUtils.remove_dir(temp_path, force: true)
     end
 
+    def capture_output(level = :debug)
+      buffer = StringIO.new
+      Jekyll.logger = Logger.new(buffer)
+      Jekyll.logger.log_level = level
+      yield
+      buffer.rewind
+      buffer.string
+    ensure
+      Jekyll.logger = Logger.new(StringIO.new, :error)
+    end
+
     # Let us use 'context' in specs
     class << self
       alias context describe

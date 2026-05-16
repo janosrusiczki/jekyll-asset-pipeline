@@ -62,9 +62,8 @@ module JekyllAssetPipeline
         FileUtils.rm_rf(staging_path)
       end
 
-      # Add prefix to output
       def puts(message)
-        $stdout.puts("Asset Pipeline: #{message}")
+        Jekyll.logger.info('Asset Pipeline:', message)
       end
 
       private
@@ -113,6 +112,10 @@ module JekyllAssetPipeline
       markup
     end
 
+    def log_error(message)
+      Jekyll.logger.error('Asset Pipeline:', message)
+    end
+
     # Collect assets based on manifest
     def collect
       @assets = YAML.safe_load(@manifest).map! do |path|
@@ -123,8 +126,7 @@ module JekyllAssetPipeline
         end
       end
     rescue StandardError => e
-      puts 'Asset Pipeline: Failed to load assets from provided ' \
-           "manifest: #{e.message}"
+      log_error "Failed to load assets from provided manifest: #{e.message}"
       raise e
     end
 
@@ -159,8 +161,7 @@ module JekyllAssetPipeline
       # Add back the output extension if no extension left
       asset.filename = "#{asset.filename}#{@type}" if File.extname(asset.filename) == ''
     rescue StandardError => e
-      puts "Asset Pipeline: Failed to convert '#{asset.filename}' " \
-           "with '#{klass}': #{e.message}"
+      log_error "Failed to convert '#{asset.filename}' with '#{klass}': #{e.message}"
       raise e
     end
 
@@ -191,8 +192,7 @@ module JekyllAssetPipeline
         begin
           asset.content = klass.new(asset.content).compressed
         rescue StandardError => e
-          puts "Asset Pipeline: Failed to compress '#{asset.filename}' " \
-               "with '#{klass}': #{e.message}"
+          log_error "Failed to compress '#{asset.filename}' with '#{klass}': #{e.message}"
           raise e
         end
       end
@@ -233,8 +233,7 @@ module JekyllAssetPipeline
           file.write(asset.content)
         end
       rescue StandardError => e
-        puts "Asset Pipeline: Failed to save '#{asset.filename}' to " \
-             "disk: #{e.message}"
+        log_error "Failed to save '#{asset.filename}' to disk: #{e.message}"
         raise e
       end
     end
