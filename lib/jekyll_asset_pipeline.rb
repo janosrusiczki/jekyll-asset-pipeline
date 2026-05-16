@@ -3,7 +3,9 @@
 # Stdlib dependencies
 require 'digest/md5'
 require 'fileutils'
+require 'pathname'
 require 'time'
+require 'tmpdir'
 require 'yaml'
 require 'zlib'
 
@@ -40,7 +42,10 @@ module JekyllAssetPipeline
   #
   # 'output_path'  Destination for bundle file (within the '_site' directory)
   # 'display_path' Optional.  Override path to assets for output HTML refs
-  # 'staging_path' Destination for staged assets (within project root directory)
+  # 'staging_path' Destination for staged assets. Absolute paths are used
+  #                as-is; relative paths are resolved against the project root.
+  #                Defaults to a per-process temp directory outside the source
+  #                tree so Jekyll's file watcher never sees staging writes.
   # 'bundle'       true = Bundle assets, false = Leave assets unbundled
   # 'compress'     true = Minify assets, false = Leave assets unminified
   # 'gzip'         true = Create gzip versions,
@@ -48,7 +53,7 @@ module JekyllAssetPipeline
   DEFAULTS = {
     'output_path' => 'assets',
     'display_path' => nil,
-    'staging_path' => '.asset_pipeline',
+    'staging_path' => File.join(Dir.tmpdir, "jekyll_asset_pipeline_#{Process.pid}"),
     'bundle' => true,
     'compress' => true,
     'gzip' => false

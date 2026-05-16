@@ -43,8 +43,8 @@ module JekyllAssetPipeline
     def preserve_assets(site, config, pipeline)
       pipeline.assets.each do |asset|
         config = JekyllAssetPipeline::DEFAULTS.merge(config)
-        staging_path = File.expand_path(File.join(site.source,
-                                                  config['staging_path']))
+        staging_path = JekyllAssetPipeline::Pipeline
+                       .resolve_staging_path(site.source, config['staging_path'])
         site.static_files << Jekyll::StaticFile.new(site, staging_path,
                                                     asset.output_path,
                                                     asset.filename)

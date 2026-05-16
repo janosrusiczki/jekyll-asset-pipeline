@@ -13,6 +13,7 @@ describe 'Integration' do
   after do
     JekyllAssetPipeline::Pipeline.clear_cache
     clear_temp_path
+    FileUtils.rm_rf(JekyllAssetPipeline::DEFAULTS['staging_path'])
   end
 
   it 'saves assets to staging path' do
@@ -22,8 +23,8 @@ describe 'Integration' do
                   .run(manifest, prefix, source_path, temp_path,
                        tag_name, extension, config)
       pipeline.assets.each do |asset|
-        file_path = File.join(source_path,
-                              JekyllAssetPipeline::DEFAULTS['staging_path'],
+        file_path = File.join(JekyllAssetPipeline::Pipeline
+                                .resolve_staging_path(source_path, JekyllAssetPipeline::DEFAULTS['staging_path']),
                               config['output_path'], asset.filename)
         File.open(file_path) do |file|
           _(file.read).must_equal(asset.content)

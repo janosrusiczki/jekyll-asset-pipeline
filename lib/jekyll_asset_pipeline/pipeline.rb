@@ -58,8 +58,13 @@ module JekyllAssetPipeline
       # Remove staged assets
       def remove_staged_assets(source, config)
         config = DEFAULTS.merge(config)
-        staging_path = File.join(source, config['staging_path'])
-        FileUtils.rm_rf(staging_path)
+        FileUtils.rm_rf(resolve_staging_path(source, config['staging_path']))
+      end
+
+      # Resolve staging path: absolute paths used as-is, relative paths
+      # joined with the Jekyll source directory.
+      def resolve_staging_path(source, path)
+        Pathname.new(path).absolute? ? path : File.join(source, path)
       end
 
       def puts(message)
@@ -213,11 +218,10 @@ module JekyllAssetPipeline
     # Save assets to file
     def save
       output_path = @options['output_path']
-      staging_path = @options['staging_path']
+      base = ::JekyllAssetPipeline::Pipeline.resolve_staging_path(@source, @options['staging_path'])
 
       @assets.each do |asset|
-        directory = File.join(@source, staging_path, output_path)
-        write_asset_file(directory, asset)
+        write_asset_file(File.join(base, output_path), asset)
 
         # Store output path of saved file
         asset.output_path = output_path
