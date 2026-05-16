@@ -139,13 +139,33 @@ describe 'Integration' do
       end
     end
 
-    it 'links to display_path if option is set' do
+    it 'links to display_path combined with output_path if display_path is set' do
       capture_output do
         config['display_path'] = 'foo/bar/baz'
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, '.js', config)
-        _(pipeline.html).must_match(%r{/foo/bar/baz/})
+        _(pipeline.html).must_match(%r{/foo/bar/baz/assets/})
+      end
+    end
+
+    it 'does not double the leading slash when display_path starts with /' do
+      capture_output do
+        config['display_path'] = '/foo/bar'
+        pipeline, = JekyllAssetPipeline::Pipeline
+                    .run(manifest, prefix, source_path, temp_path,
+                         tag_name, '.js', config)
+        _(pipeline.html).wont_match(%r{//foo})
+        _(pipeline.html).must_match(%r{/foo/bar/assets/})
+      end
+    end
+
+    it 'uses output_path in url when display_path is not set' do
+      capture_output do
+        pipeline, = JekyllAssetPipeline::Pipeline
+                    .run(manifest, prefix, source_path, temp_path,
+                         tag_name, '.js', config)
+        _(pipeline.html).must_match(%r{/assets/})
       end
     end
   end

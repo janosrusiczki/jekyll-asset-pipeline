@@ -4,7 +4,9 @@ module JekyllAssetPipeline
   # Contains helper methods used by the tag template classes
   module TemplateHelper
     def output_path
-      root_path? ? '' : "/#{@path}"
+      return '' if root_path?
+
+      @path.start_with?('/') ? @path : "/#{@path}"
     end
 
     def root_path?
