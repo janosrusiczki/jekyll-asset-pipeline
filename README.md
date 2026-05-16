@@ -11,7 +11,6 @@ Jekyll Asset Pipeline is a powerful asset pipeline that automatically collects, 
 - [How It Works](#how-it-works)
 - [Getting Started](#getting-started)
 - [Asset Preprocessing](#asset-preprocessing)
-  - [CoffeeScript](#coffeescript)
   - [SASS / SCSS](#sass--scss)
   - [LESS](#less)
   - [Successive Preprocessing](#successive-preprocessing)
@@ -95,108 +94,53 @@ That is it! You should now have bundled assets. Look in the `_site` folder of yo
 
 ## Asset Preprocessing
 
-Asset preprocessing (i.e. conversion) allows us to write our assets in languages such as [CoffeeScript](https://coffeescript.org/), [Sass](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, or any other language. One of Jekyll Asset Pipeline's key strengths is that it works with __any__ preprocessing library that has a ruby wrapper. Adding a preprocessor is straightforward, but requires a small amount of additional code.
-
-In the following example, we will add a preprocessor that converts CoffeeScript into JavaScript.
-
-### CoffeeScript
-
-1. In the `jekyll_asset_pipeline.rb` file that we created in the [Getting Started](#getting-started) section, add the following code to the end of the file (i.e. after the `require` statement).
-
-  ``` ruby
-  module JekyllAssetPipeline
-    class CoffeeScriptConverter < JekyllAssetPipeline::Converter
-      require 'coffee-script'
-
-      def self.filetype
-        '.coffee'
-      end
-
-      def convert
-        return CoffeeScript.compile(@content)
-      end
-    end
-  end
-  ```
-
-  The above code adds a CoffeeScript converter. You can name a converter anything as long as it inherits from `JekyllAssetPipeline::Converter`. The `self.filetype` method defines the type of asset a converter will process (e.g. `.coffee` for CoffeeScript) based on the extension of the raw asset file. A `@content` instance variable that contains the raw content of our asset is made available within the converter. The converter should process this content and return the processed content (as a string) via a `convert` method.
-
-2. If you haven't already, you should now install any dependancies that are required by your converter. In our case, we need to install the `coffee-script` gem.
-
-  ``` bash
-  $ gem install coffee-script
-  ```
-
-  If you are using [Bundler](https://bundler.io/) to manage your project's gems, you can just add `coffee-script` to your Gemfile and run `bundle install`.
-
-3. Append a `.coffee` extension to the filename of any asset that should be converted with the `CoffeeScriptConverter`. For example, `foo.js` would become `foo.js.coffee`.
-
-4. Run the `jekyll build` command to compile your site.
-
-That is it! Your asset pipeline has converted any CoffeeScript assets into JavaScript before adding them to a bundle.
+Asset preprocessing (i.e. conversion) allows us to write our assets in languages such as [Sass](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, or any other language. One of Jekyll Asset Pipeline's key strengths is that it works with __any__ preprocessing library that has a Ruby wrapper. Adding a preprocessor is straightforward, but requires a small amount of additional code.
 
 ### SASS / SCSS
 
-You probably get the gist of how converters work, but here's an example of a SASS converter for quick reference.
+Here's an example of a Sass converter using the actively-maintained [`sass-embedded`](https://rubygems.org/gems/sass-embedded) gem (the official Ruby binding for Dart Sass).
 
 ``` ruby
 module JekyllAssetPipeline
   class SassConverter < JekyllAssetPipeline::Converter
-    require 'sass'
+    require 'sass-embedded'
 
     def self.filetype
       '.scss'
     end
 
     def convert
-      return Sass::Engine.new(@content, syntax: :scss).render
+      Sass.compile_string(@content, syntax: :scss, load_paths: [@dirname]).css
     end
   end
 end
 ```
 
-Don't forget to install the `sass` gem or add it to your Gemfile and run `bundle install` before you run the `jekyll build` command since the above SASS converter requires the `sass` library as a dependency.
-
-If you're using `@import` statements in your SASS files, you'll probably need to specify a base load path to the SASS engine in your `convert` method.
-You can use the `@dirname` instance variable for this, which contains the path to the current asset's directory:
-
-``` ruby
-...
-def convert
-  return Sass::Engine.new(@content, syntax: :scss, load_paths: [@dirname]).render
-end
-...
-```
+Install the `sass-embedded` gem or add it to your Gemfile and run `bundle install`. The `load_paths: [@dirname]` option ensures that `@use` and `@import` rules resolve relative to the asset's directory.
 
 ### LESS
+
+No actively-maintained pure-Ruby gem exists for LESS, but you can shell out to the [Node `lessc` binary](https://lesscss.org/) (install with `npm install -g less`) using Ruby's standard `Open3` library:
 
 ``` ruby
 module JekyllAssetPipeline
   class LessConverter < JekyllAssetPipeline::Converter
-    require 'less'
+    require 'open3'
 
     def self.filetype
       '.less'
     end
 
     def convert
-      return Less::Parser.new.parse(@content).to_css
+      stdout, status = Open3.capture2("lessc --include-path=#{@dirname} -", stdin_data: @content)
+      raise "lessc failed" unless status.success?
+      stdout
     end
   end
 end
 ```
 
-Don't forget to install the `less` gem or add it to your Gemfile and run `bundle install` before you run the `jekyll build` command since the above LESS converter requires the `less` library as a dependency.
-
-As with the SASS convertor, you'll probably need to specify a base load path and pass that to the LESS Parser:
-
-``` ruby
-...
-def convert
-  return Less::Parser.new(paths: [@dirname]).parse(@content).to_css
-end
-...
-```
+This pattern — shelling out to any compiler that reads from stdin — works for any tool that has a command-line interface, not just LESS.
 
 ### Successive Preprocessing
 
