@@ -40,8 +40,8 @@ module JekyllAssetPipeline
 
         before do
           # Mock custom converter
-          template = MiniTest::Mock.new
-          klass = MiniTest::Mock.new
+          template = Minitest::Mock.new
+          klass = Minitest::Mock.new
 
           YAML.safe_load(manifest).size.times do
             template.expect(:html, 'html')
@@ -70,8 +70,8 @@ module JekyllAssetPipeline
 
           before do
             # Mock custom converter
-            converter = MiniTest::Mock.new
-            klass = MiniTest::Mock.new
+            converter = Minitest::Mock.new
+            klass = Minitest::Mock.new
 
             YAML.safe_load(manifest).size.times do
               converter.expect(:converted, 'converted')
@@ -145,8 +145,8 @@ module JekyllAssetPipeline
 
           before do
             # Mock custom compressor
-            compressor = MiniTest::Mock.new
-            klass = MiniTest::Mock.new
+            compressor = Minitest::Mock.new
+            klass = Minitest::Mock.new
 
             YAML.safe_load(manifest).size.times do
               compressor.expect(:compressed, 'compressed')

@@ -14,7 +14,7 @@ module JekyllAssetPipeline
       end
 
       describe 'instance methods' do
-        let(:asset) { MiniTest::Mock.new }
+        let(:asset) { Minitest::Mock.new }
 
         before do
           asset.expect(:content, 'foo')
@@ -54,7 +54,7 @@ module JekyllAssetPipeline
       end
 
       describe 'instance methods' do
-        let(:asset) { MiniTest::Mock.new }
+        let(:asset) { Minitest::Mock.new }
 
         before do
           asset.expect(:content, 'unconverted')

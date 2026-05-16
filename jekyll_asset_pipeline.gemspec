@@ -24,8 +24,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/matthodan/jekyll-asset-pipeline'
   s.license = 'MIT'
 
-  s.required_ruby_version = '>= 2.3.0'
-  s.rubygems_version = '2.2.2'
+  s.required_ruby_version = '>= 2.7.0'
 
   # Runtime dependencies
   s.add_runtime_dependency 'jekyll', '>= 3.5', '< 5.0'
@@ -33,7 +32,7 @@ Gem::Specification.new do |s|
 
   # Development dependencies
   s.add_development_dependency 'minitest', '~> 5.2'
-  s.add_development_dependency 'rake', '~> 12.0'
+  s.add_development_dependency 'rake', '~> 13.0'
 
   # Files
   s.files = Dir['lib/**/*.rb', 'LICENSE', 'README.md', 'CHANGELOG.md'].to_a

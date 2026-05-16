@@ -1,9 +1,16 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.7
+  NewCops: disable
+  SuggestExtensions: false
 
 # Do not count block length in spec files
 Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'it', 'context']
+  AllowedMethods: ['describe', 'it', 'context']
 
 Metrics/MethodLength:
   Max: 15
+
+# Minitest specs define mock classes inside before blocks — unavoidable pattern
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - 'spec/**/*'

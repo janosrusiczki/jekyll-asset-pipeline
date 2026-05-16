@@ -10,7 +10,7 @@ require 'minitest/pride'
 require './spec/helpers/extensions/ruby/module'
 require 'jekyll_asset_pipeline'
 
-module MiniTest
+module Minitest
   class Spec
     def source_path
       File.join(__dir__, 'resources', 'source')
