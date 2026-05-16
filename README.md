@@ -28,7 +28,7 @@ Jekyll Asset Pipeline is a powerful asset pipeline that automatically collects, 
 ## Features
 
 - Declarative dependency management via asset manifests
-- Asset preprocessing/conversion (supports [CoffeeScript](https://coffeescript.org/), [Sass / Scss](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, etc.)
+- Asset preprocessing/conversion (supports [Sass / Scss](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, etc.)
 - Asset compression (supports [Terser](https://rubygems.org/gems/terser), [Closure Compiler](https://developers.google.com/closure/compiler/), etc.)
 - Fingerprints bundled asset filenames with MD5 hashes for better browser caching
 - Automatic generation of HTML `link` and `script` tags that point to bundled assets
