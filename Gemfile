@@ -3,8 +3,10 @@
 source 'https://rubygems.org'
 
 group :test do
-  gem 'coveralls', require: false
+  gem 'bigdecimal'
   gem 'rubocop'
+  gem 'simplecov', '~> 0.22', require: false
+  gem 'simplecov-cobertura', '~> 3.1', require: false
 end
 
 gemspec
