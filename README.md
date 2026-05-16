@@ -15,7 +15,7 @@ Jekyll Asset Pipeline is a powerful asset pipeline that automatically collects, 
   - [LESS](#less)
   - [Successive Preprocessing](#successive-preprocessing)
 - [Asset Compression](#asset-compression)
-  - [Yahoo's YUI Compressor](#yahoos-yui-compressor)
+  - [Terser](#terser)
   - [Google's Closure Compiler](#googles-closure-compiler)
 - [Templates](#templates)
 - [Configuration](#configuration)
@@ -28,7 +28,7 @@ Jekyll Asset Pipeline is a powerful asset pipeline that automatically collects, 
 
 - Declarative dependency management via asset manifests
 - Asset preprocessing/conversion (supports [CoffeeScript](https://coffeescript.org/), [Sass / Scss](https://sass-lang.com/), [Less](https://lesscss.org/), Erb, etc.)
-- Asset compression (supports [YUI Compressor](https://yui.github.io/yuicompressor/), [Closure Compiler](https://developers.google.com/closure/compiler/), etc.)
+- Asset compression (supports [Terser](https://rubygems.org/gems/terser), [Closure Compiler](https://developers.google.com/closure/compiler/), etc.)
 - Fingerprints bundled asset filenames with MD5 hashes for better browser caching
 - Automatic generation of HTML `link` and `script` tags that point to bundled assets
 - Integrates seamlessly into Jekyll's workflow, including auto site regeneration
@@ -152,57 +152,45 @@ Don't forget to define preprocessors for the extensions you use in your filename
 
 Asset compression allows us to decrease the size of our assets and increase the speed of our site. One of Jekyll Asset Pipeline's key strengths is that it works with __any__ compression library that has a ruby wrapper. Adding asset compression is straightforward, but requires a small amount of additional code.
 
-In the following example, we will add a compressor that uses Yahoo's YUI Compressor to compress our CSS and JavaScript assets.
+In the following example, we will add a JavaScript compressor using the actively-maintained [`terser`](https://rubygems.org/gems/terser) gem. For CSS compression, the `sass-embedded` converter shown above supports compressed output natively via `style: :compressed`.
 
-### Yahoo's YUI Compressor
+### Terser
 
 1. In the `jekyll_asset_pipeline.rb` file that we created in the [Getting Started](#getting-started) section, add the following code to the end of the file (i.e. after the `require` statement).
 
   ``` ruby
   module JekyllAssetPipeline
-    class CssCompressor < JekyllAssetPipeline::Compressor
-      require 'yui/compressor'
-
-      def self.filetype
-        '.css'
-      end
-
-      def compress
-        return YUI::CssCompressor.new.compress(@content)
-      end
-    end
-
     class JavaScriptCompressor < JekyllAssetPipeline::Compressor
-      require 'yui/compressor'
+      require 'terser'
 
       def self.filetype
         '.js'
       end
 
       def compress
-        return YUI::JavaScriptCompressor.new(munge: true).compress(@content)
+        Terser.new.compile(@content)
       end
     end
   end
   ```
 
-  The above code adds a CSS and a JavaScript compressor. You can name a compressor anything as long as it inherits from `JekyllAssetPipeline::Compressor`. The `self.filetype` method defines the type of asset a compressor will process (either `'.js'` or `'.css'`). The `compress` method is where the magic happens. A `@content` instance variable that contains the raw content of our bundle is made available within the compressor. The compressor should process this content and return the processed content (as a string) via a `compress` method.
+  You can name a compressor anything as long as it inherits from `JekyllAssetPipeline::Compressor`. The `self.filetype` method defines the type of asset a compressor will process (either `'.js'` or `'.css'`). The `compress` method is where the magic happens. A `@content` instance variable that contains the raw content of our bundle is made available within the compressor. The compressor should process this content and return the processed content (as a string) via a `compress` method.
 
-2. If you haven't already, you should now install any dependencies that are required by your compressor. In our case, we need to install the `yui-compressor` gem.
+2. If you haven't already, install the `terser` gem.
 
   ``` bash
-  $ gem install yui-compressor
+  $ gem install terser
   ```
 
-  If you are using [Bundler](https://bundler.io/) to manage your project's gems, you can just add `yui-compressor` to your Gemfile and run `bundle install`.
+  If you are using [Bundler](https://bundler.io/) to manage your project's gems, you can just add `terser` to your Gemfile and run `bundle install`.
 
 3. Run the `jekyll build` command to compile your site.
 
-That is it! Your asset pipeline has compressed your CSS and JavaScript assets. You can verify that this is the case by looking at the contents of the bundles generated in the `_site/assets` folder of your project.
+That is it! Your asset pipeline has compressed your JavaScript assets. You can verify that this is the case by looking at the contents of the bundles generated in the `_site/assets` folder of your project.
 
 ### Google's Closure Compiler
 
-You probably get the gist of how compressors work, but here's an example of a Google Closure Compiler compressor for quick reference.
+Here's an alternative example using the Google Closure Compiler.
 
 ``` ruby
 class JavaScriptCompressor < JekyllAssetPipeline::Compressor
@@ -213,7 +201,7 @@ class JavaScriptCompressor < JekyllAssetPipeline::Compressor
   end
 
   def compress
-    return Closure::Compiler.new.compile(@content)
+    Closure::Compiler.new.compile(@content)
   end
 end
 ```
