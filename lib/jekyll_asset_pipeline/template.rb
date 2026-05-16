@@ -2,7 +2,7 @@
 
 module JekyllAssetPipeline
   # Base class for the tag templates
-  # See https://github.com/matthodan/jekyll-asset-pipeline#templates
+  # See https://github.com/janosrusiczki/jekyll-asset-pipeline#templates
   class Template
     include JekyllAssetPipeline::TemplateHelper
     extend JekyllAssetPipeline::SubclassTracking

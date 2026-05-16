@@ -2,7 +2,7 @@
 
 module JekyllAssetPipeline
   # Base class for asset compressors
-  # See https://github.com/matthodan/jekyll-asset-pipeline#asset-compression
+  # See https://github.com/janosrusiczki/jekyll-asset-pipeline#asset-compression
   class Compressor
     extend JekyllAssetPipeline::SubclassTracking
 
