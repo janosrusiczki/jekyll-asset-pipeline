@@ -100,10 +100,22 @@ module JekyllAssetPipeline
             _(subject.size).must_equal(1)
           end
 
-          it 'generates a filename with md5 for the bundled asset' do
-            hash = JekyllAssetPipeline::Pipeline
-                   .hash(source_path, manifest, options)
-            _(subject.last.filename).must_equal("#{prefix}-#{hash}#{type}")
+          it 'generates a filename with md5 of the bundled content' do
+            asset = subject.last
+            hash = Digest::MD5.hexdigest(asset.content)
+            _(asset.filename).must_equal("#{prefix}-#{hash}#{type}")
+          end
+
+          it 'generates the same filename when mtime changes but content does not' do
+            filename_before = subject.last.filename
+
+            YAML.safe_load(manifest).each do |path|
+              FileUtils.touch(File.join(source_path, path))
+            end
+
+            Pipeline.clear_cache
+            pipeline2 = Pipeline.new(manifest, prefix, source_path, temp_path, type, options)
+            _(pipeline2.assets.last.filename).must_equal(filename_before)
           end
 
           it 'saves asset to disk at the staging path' do
