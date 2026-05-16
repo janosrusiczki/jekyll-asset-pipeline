@@ -107,6 +107,7 @@ module JekyllAssetPipeline
       convert
       bundle if @options['bundle']
       compress if @options['compress']
+      finalize_bundle_filename if @options['bundle']
       gzip if @options['gzip']
       save
       markup
@@ -166,11 +167,15 @@ module JekyllAssetPipeline
     # Bundle multiple assets into a single asset
     def bundle
       content = @assets.map(&:content).join("\n")
+      @assets = [::JekyllAssetPipeline::Asset.new(content, "#{@prefix}#{@type}")]
+    end
 
-      hash = ::JekyllAssetPipeline::Pipeline.hash(@source, @manifest, @options)
-      @assets = [
-        ::JekyllAssetPipeline::Asset.new(content, "#{@prefix}-#{hash}#{@type}")
-      ]
+    # Set final bundle filename from MD5 of post-compression content
+    def finalize_bundle_filename
+      @assets.each do |asset|
+        hash = Digest::MD5.hexdigest(asset.content)
+        asset.filename = "#{@prefix}-#{hash}#{@type}"
+      end
     end
 
     # Compress assets if compressor is defined

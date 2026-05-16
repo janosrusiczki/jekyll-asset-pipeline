@@ -33,8 +33,10 @@ describe 'Integration' do
   end
 
   it 'outputs processing and saved file status messages' do
-    hash = JekyllAssetPipeline::Pipeline.hash(source_path, manifest, config)
-    filename = "#{prefix}-#{hash}#{extension}"
+    content = YAML.safe_load(manifest).map do |p|
+      File.read(File.join(source_path, p))
+    end.join("\n")
+    filename = "#{prefix}-#{Digest::MD5.hexdigest(content)}#{extension}"
     path = File.join(temp_path, JekyllAssetPipeline::DEFAULTS['output_path'])
 
     expected =
