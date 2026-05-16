@@ -6,6 +6,7 @@ module JekyllAssetPipeline
     # Record subclasses of this class (this method is automatically called by
     # ruby)
     def inherited(base)
+      super
       subclasses << base
     end
 

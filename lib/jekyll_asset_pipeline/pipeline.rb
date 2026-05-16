@@ -156,9 +156,7 @@ module JekyllAssetPipeline
       asset.filename = File.basename(asset.filename, '.*')
 
       # Add back the output extension if no extension left
-      if File.extname(asset.filename) == ''
-        asset.filename = "#{asset.filename}#{@type}"
-      end
+      asset.filename = "#{asset.filename}#{@type}" if File.extname(asset.filename) == ''
     rescue StandardError => e
       puts "Asset Pipeline: Failed to convert '#{asset.filename}' " \
            "with '#{klass}': #{e.message}"

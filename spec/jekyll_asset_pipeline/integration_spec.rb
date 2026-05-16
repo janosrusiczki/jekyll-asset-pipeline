@@ -144,7 +144,7 @@ describe 'Integration' do
         pipeline, = JekyllAssetPipeline::Pipeline
                     .run(manifest, prefix, source_path, temp_path,
                          tag_name, '.js', config)
-        _(pipeline.html).must_match(%r{/foo\/bar\/baz/})
+        _(pipeline.html).must_match(%r{/foo/bar/baz/})
       end
     end
   end
