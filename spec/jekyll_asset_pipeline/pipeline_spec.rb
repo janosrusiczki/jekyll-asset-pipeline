@@ -24,8 +24,10 @@ module JekyllAssetPipeline
     end
 
     describe 'instance methods' do
-      # Clean up temp files saved to spec/resources/temp
-      after { FileUtils.remove_dir(temp_path, force: true) }
+      after do
+        FileUtils.remove_dir(temp_path, force: true)
+        FileUtils.rm_rf(Pipeline.resolve_staging_path(source_path, DEFAULTS['staging_path']))
+      end
 
       let(:manifest) { "- /_assets/foo.css\n- /_assets/bar.css" }
       let(:prefix) { 'foobar' }
@@ -120,7 +122,7 @@ module JekyllAssetPipeline
 
           it 'saves asset to disk at the staging path' do
             asset = subject.last
-            staging_path = File.join(source_path, DEFAULTS['staging_path'],
+            staging_path = File.join(Pipeline.resolve_staging_path(source_path, DEFAULTS['staging_path']),
                                      asset.output_path, asset.filename)
             _(File.exist?(staging_path)).must_equal(true)
           end
@@ -145,7 +147,7 @@ module JekyllAssetPipeline
 
           it 'saves assets to disk at the staging path' do
             subject.each do |a|
-              staging_path = File.join(source_path, DEFAULTS['staging_path'],
+              staging_path = File.join(Pipeline.resolve_staging_path(source_path, DEFAULTS['staging_path']),
                                        a.output_path, a.filename)
               _(File.exist?(staging_path)).must_equal(true)
             end

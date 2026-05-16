@@ -66,9 +66,10 @@ module JekyllAssetPipeline
       end
 
       it 'removes the staged assets via Pipeline.remove_staged_assets' do
-        FileUtils.touch('/tmp/.asset_pipeline')
+        staging = Pipeline.resolve_staging_path('/tmp/', DEFAULTS['staging_path'])
+        FileUtils.mkdir_p(staging)
         subject
-        _(File.exist?('/tmp/.asset_pipeline')).must_equal(false)
+        _(File.exist?(staging)).must_equal(false)
       end
     end
   end
