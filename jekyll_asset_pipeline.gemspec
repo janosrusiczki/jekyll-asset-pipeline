@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   SUMMARY
 
   s.description = <<-DESCRIPTION
-    Jekyll Asset Pipeline adds asset preprocessing (CoffeeScript, Sass,
-    Less, ERB, etc.) and asset compression / minification / gzip (Yahoo YUI
-    Compressor, Google Closure Compiler, etc.) to Jekyll.
+    Jekyll Asset Pipeline adds asset preprocessing (Sass, Less, ERB, etc.)
+    and asset compression / minification / gzip (Terser, Closure Compiler,
+    etc.) to Jekyll.
   DESCRIPTION
 
   s.authors = ['Matt Hodan', 'Janos Rusiczki']
